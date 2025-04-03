@@ -1,0 +1,1390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-en="Randomizer 3000" data-nl="Randomizer 3000">Randomizer 3000</title>
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css" integrity="sha384-DyZ88mC6Up2uqS4h/KRgHuoeGwBcD4Ng9SiP4dIRy0EXTlnuz47vAwmeGwVChigm" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 20px;
+            transition: background-color 0.3s, color 0.3s;
+            position: relative;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        h1 {
+            font-family: 'Press Start 2P', Arial, sans-serif;
+            font-size: 2em;
+            margin-bottom: 20px;
+            color: #F7931A;
+        }
+        .light {
+            background-color: #f0f0f0;
+            color: #333;
+        }
+        .dark {
+            background-color: #1a1a1a;
+            color: #f0f0f0;
+        }
+        .controls-container {
+            max-width: 400px;
+            margin: 0 auto 20px auto;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+        .light .controls-container {
+            background: rgba(0, 0, 0, 0.05);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        label {
+            display: block;
+            margin: 5px 0 2px 0;
+            font-size: 0.9em;
+        }
+        input, select {
+            width: 300px;
+            padding: 6px;
+            margin: 0 auto 8px auto;
+            display: block;
+            border-radius: 4px;
+            border: 1px solid #666;
+            background: #2a2a2a;
+            color: #f0f0f0;
+            font-size: 0.9em;
+            box-sizing: border-box;
+        }
+        .light input, .light select {
+            border: 1px solid #999;
+            background: #fff;
+            color: #333;
+        }
+        .input-with-icon {
+            position: relative;
+            width: 300px;
+            margin: 0 auto 8px auto;
+        }
+        .input-with-icon input {
+            width: 100%;
+            padding-right: 30px;
+        }
+        .input-with-icon i {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #F7931A;
+            cursor: pointer;
+            font-size: 1em;
+            transition: color 0.3s ease;
+        }
+        .input-with-icon i:hover {
+            color: #FFA500;
+        }
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        input[type="number"] {
+            -moz-appearance: textfield;
+        }
+        .invalid-input {
+            border: 2px solid red;
+        }
+        @keyframes flashRed {
+            0% { border-color: #666; }
+            50% { border-color: red; }
+            100% { border-color: #666; }
+        }
+        .light .flash-red {
+            animation: flashRed 0.5s ease-in-out 2;
+        }
+        .dark .flash-red {
+            animation: flashRed 0.5s ease-in-out 2;
+        }
+        .button-group {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        button {
+            padding: 8px 16px;
+            font-size: 0.9em;
+            border-radius: 4px;
+            border: none;
+            background: #F7931A;
+            color: #fff;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+        button:hover {
+            background: #FFA500;
+        }
+        button.reset-btn {
+            background: #FF0000;
+        }
+        button.reset-btn:hover {
+            background: #FF3333;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .spinning {
+            animation: spin 0.5s linear;
+        }
+        #result {
+            font-size: 1.3em;
+            margin-top: 15px;
+        }
+        #summary {
+            color: white;
+            font-size: 0.8em;
+            margin-top: 10px;
+            background-color: rgba(0, 0, 0, 0.7);
+            padding: 5px;
+            display: inline-block;
+            border-radius: 4px;
+        }
+        #wordList {
+            margin-top: 20px;
+            margin-bottom: 25px;
+            font-size: 1.1em;
+        }
+        #wordList ul {
+            list-style: none;
+            padding: 0;
+        }
+        #wordList li {
+            margin: 5px 0;
+            padding: 5px 10px;
+            display: inline-block;
+            border-radius: 4px;
+        }
+        #wordList .orange {
+            color: #FFA500;
+            background-color: #444;
+        }
+        #wordList .light-blue {
+            color: #87CEEB;
+            background-color: #444;
+        }
+        #wordCounter {
+            font-size: 1em;
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+        }
+        #checksumLink {
+            font-size: 0.9em;
+            margin-top: 5px;
+            display: none;
+        }
+        #checksumLink a {
+            color: #FFA500;
+            text-decoration: none;
+        }
+        #checksumLink a:hover {
+            color: #FFD700;
+        }
+        #safeCopyButton {
+            padding: 6px 12px;
+            font-size: 0.8em;
+            margin-left: 10px;
+            background: #F7931A;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+        #safeCopyButton:hover {
+            background: #FFA500;
+        }
+        #resetIcon, #logIcon {
+            cursor: pointer;
+            margin-left: 10px;
+            color: #FFA500;
+            transition: color 0.3s ease;
+            font-size: 0.9em;
+        }
+        #resetIcon:hover, #logIcon:hover {
+            color: #FFD700;
+        }
+        #resetIcon:hover {
+            transform: rotate(10deg);
+        }
+        #workingOverlay, #infoOverlay, #logOverlay, #entropyPopup, #safeCopyPopup, #summaryOverlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        #workingOverlay span {
+            color: #FFA500;
+            font-size: 2em;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px #000;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        .pulsing {
+            animation: pulse 1s infinite;
+        }
+        #infoContent, #logContent, #entropyPopupContent, #safeCopyPopupContent, #summaryContent {
+            background: #2a2a2a;
+            color: #f0f0f0;
+            padding: 20px;
+            border-radius: 8px;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+            font-size: 0.9em;
+            text-align: left;
+            position: relative;
+        }
+        .light #infoContent, .light #logContent, .light #entropyPopupContent, .light #safeCopyPopupContent, .light #summaryContent {
+            background: #f0f0f0;
+            color: #333;
+        }
+        #infoContent h3, #logContent h3, #entropyPopupContent h3, #safeCopyPopupContent h3, #summaryContent h3 {
+            margin-top: 0;
+            color: #FFA500;
+        }
+        #closeInfo, #closeLog, #entropyPopupClose, #closeSummary {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 1.2em;
+            color: #FFA500;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+        #closeInfo:hover, #closeLog:hover, #entropyPopupClose:hover, #closeSummary:hover {
+            color: #FFD700;
+        }
+        .mode-switcher {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            display: flex;
+            align-items: center;
+            gap: 25px;
+        }
+        .language-switcher {
+            display: flex;
+            gap: 5px;
+        }
+        .language-btn {
+            padding: 5px 10px;
+            font-size: 0.8em;
+            border-radius: 4px;
+            border: none;
+            background: #666;
+            color: #fff;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+        .language-btn.active {
+            background: #F7931A;
+        }
+        .language-btn:hover {
+            background: #999;
+        }
+        #lever-container {
+            width: 50px;
+            height: 20px;
+            background: #666;
+            border-radius: 10px;
+            position: relative;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+        #lever {
+            width: 24px;
+            height: 24px;
+            background: #F7931A;
+            border-radius: 50%;
+            position: absolute;
+            top: -2px;
+            transition: left 0.3s ease;
+        }
+        #lever.online {
+            left: 0;
+        }
+        #lever.offline {
+            left: 26px;
+        }
+        .light #lever-container {
+            background: #999;
+        }
+        .light #lever {
+            background: #FFA500;
+        }
+        #lever-label {
+            font-size: 0.7em;
+            position: absolute;
+            top: 22px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #F7931A;
+        }
+        .slider-container {
+            position: relative;
+            width: 300px;
+            margin: 5px auto 20px auto;
+        }
+        #saltSlider {
+            width: 300px;
+            -webkit-appearance: none;
+            appearance: none;
+            height: 8px;
+            background: #666;
+            outline: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        #saltSlider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            background: #F7931A;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        #saltSlider::-moz-range-thumb {
+            width: 16px;
+            height: 16px;
+            background: #F7931A;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        .light #saltSlider {
+            background: #999;
+        }
+        .light #saltSlider::-webkit-slider-thumb {
+            background: #FFA500;
+        }
+        .light #saltSlider::-moz-range-thumb {
+            background: #FFA500;
+        }
+        #saltTooltip {
+            position: absolute;
+            top: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #333;
+            color: #f0f0f0;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8em;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease;
+            z-index: 100;
+        }
+        .light #saltTooltip {
+            background: #666;
+            color: #fff;
+        }
+        #saltSlider:hover + #saltTooltip,
+        #saltSlider:focus + #saltTooltip {
+            opacity: 1;
+        }
+        .logo-container {
+            position: relative;
+            display: inline-block;
+            margin: 10px 0;
+        }
+        #logo {
+            height: 125px;
+            width: auto;
+            vertical-align: middle;
+        }
+        #logo-tooltip {
+            position: absolute;
+            top: -50px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #333;
+            color: #f0f0f0;
+            padding: 6px 10px;
+            border-radius: 4px;
+            font-size: 0.8em;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease;
+            z-index: 10;
+        }
+        .light #logo-tooltip {
+            background: #666;
+            color: #fff;
+        }
+        #logo:hover + #logo-tooltip {
+            opacity: 1;
+        }
+        #safeCopyPopupContent textarea {
+            width: 100%;
+            height: 100px;
+            padding: 10px;
+            border: 1px solid #666;
+            border-radius: 4px;
+            background: #333;
+            color: #f0f0f0;
+            font-family: monospace;
+            resize: none;
+            margin-bottom: 10px;
+        }
+        .light #safeCopyPopupContent textarea {
+            border: 1px solid #999;
+            background: #fff;
+            color: #333;
+        }
+        footer {
+            margin-top: auto;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border-top: 1px solid #666;
+        }
+        .light footer {
+            background: rgba(0, 0, 0, 0.05);
+            border-top: 1px solid #999;
+        }
+        .footer-container {
+            max-width: 800px;
+            margin: 0 auto;
+            text-align: left;
+        }
+        .footer-links ul {
+            list-style: none;
+            padding: 0;
+            display: flex;
+            gap: 20px;
+            margin-bottom: 10px;
+        }
+        .footer-links a {
+            color: #FFA500;
+            text-decoration: none;
+        }
+        .footer-links a:hover {
+            color: #FFD700;
+        }
+        .footer-links button {
+            padding: 5px 10px;
+            font-size: 0.8em;
+        }
+        .version {
+            color: #999;
+        }
+        .footer-warning {
+            font-size: 0.9em;
+        }
+        .footer-warning strong {
+            color: #FF0000;
+        }
+        .footer-warning a {
+            color: #FFA500;
+            text-decoration: none;
+        }
+        .footer-warning a:hover {
+            color: #FFD700;
+        }
+        body.offline-mode {
+            font-family: Arial, sans-serif;
+        }
+        body.offline-mode #entropySource option[disabled] {
+            color: #666;
+            background: #2a2a2a;
+        }
+        .light.offline-mode #entropySource option[disabled] {
+            color: #999;
+            background: #fff;
+        }
+    </style>
+</head>
+<body class="dark">
+    <div class="mode-switcher">
+        <div id="lever-container">
+            <div id="lever" class="online"></div>
+            <span id="lever-label" data-en="Online" data-nl="Online">Online</span>
+        </div>
+        <div class="language-switcher">
+            <button class="language-btn active" onclick="switchLanguage('en')">EN</button>
+            <button class="language-btn" onclick="switchLanguage('nl')">NL</button>
+        </div>
+    </div>
+    <h1 data-en="Randomizer 3000" data-nl="Randomizer 3000">Randomizer 3000</h1>
+    <div class="logo-container">
+        <img id="logo" src="rlogo.png" alt="Randomizer Logo">
+        <span id="logo-tooltip">This tool generates random BIP39 seed words for cryptocurrency wallets. It uses various entropy sources to ensure secure randomness.</span>
+    </div>
+    <div class="controls-container">
+        <label for="modeSelect" data-en="Mode:" data-nl="Modus:">Mode:</label>
+        <select id="modeSelect" onchange="toggleMode()">
+            <option value="light" data-en="Light Mode" data-nl="Lichte modus">Light Mode</option>
+            <option value="dark" selected data-en="Dark Mode" data-nl="Donkere modus">Dark Mode</option>
+            <option value="neutral" data-en="Neutral Mode" data-nl="Neutrale modus">Neutral Mode</option>
+        </select>
+        
+        <label for="entropyInput" data-en="User input entropy" data-nl="Gebruikersinvoer entropie">User input entropy</label>
+        <div class="input-with-icon">
+            <input type="number" id="entropyInput" maxlength="21" placeholder="Enter 1-21 digits" data-en="Enter 1-21 digits" data-nl="Voer 1-21 cijfers in">
+            <i class="fas fa-dice" id="randomizeInput" title="Generate Random Number / Genereer Willekeurig Nummer"></i>
+        </div>
+        
+        <label for="entropySource" data-en="Entropy Source:" data-nl="Entropiebron:">Entropy Source:</label>
+        <select id="entropySource">
+            <option value="user" data-en="User Input" data-nl="Gebruikersinvoer">User Input</option>
+            <option value="beats" data-en="Swatch .beats" data-nl="Swatch .beats">Swatch .beats</option>
+            <option value="blockHeight" data-external="true" data-en="Block Height" data-nl="Blokhoogte">Block Height</option>
+            <option value="httpLatency" data-external="true" data-en="HTTP Latency" data-nl="HTTP Latentie">HTTP Latency</option>
+            <option value="fairMaxEntropy" data-en="Fair Max Entropy" data-nl="Eerlijke Max Entropie">Fair Max Entropy</option>
+            <option value="transitTraffic" data-external="true" data-en-bxrt="Bxl Rail Traffic (BXRT)" data-nl-bxrt="Bxl Spoorverkeer (BXRT)">Bxl Rail Traffic (BXRT)</option>
+            <option value="lavaRand" data-external="true" data-en="LavaRand" data-nl="LavaRand">LavaRand</option>
+            <option value="diceRoll" data-en="Dice Roll (2D20+2D10)" data-nl="Dobbelstenen (2D20+2D10)">Dice Roll (2D20+2D10)</option>
+        </select>
+        
+        <label for="saltSlider" data-en="Salt Level (Optional):" data-nl="Zoutniveau (Optioneel):">Salt Level (Optional):</label>
+        <div class="slider-container">
+            <input type="range" id="saltSlider" min="0" max="10" value="0" step="1">
+            <span id="saltTooltip">OFF</span>
+        </div>
+        
+        <div class="button-group">
+            <button onclick="runRandomizer()" data-en="Generate" data-nl="Genereer">Generate</button>
+            <button onclick="run23Words()" data-en="Run 23 Words" data-nl="23 woorden">Run 23 Words</button>
+            <button class="reset-btn" onclick="resetWordList()" data-en="Reset" data-nl="Reset">Reset</button>
+            <button onclick="showInfo()" data-en="Info" data-nl="Info">Info</button>
+        </div>
+    </div>
+    <div id="result" data-en="" data-nl=""></div>
+    <div id="summary" data-en="" data-nl=""></div>
+    <div id="wordList">
+        <h3><span data-en="Generated BIP39 Words" data-nl="Gegenereerde BIP39 Woorden">Generated BIP39 Words</span>
+            <button id="safeCopyButton" onclick="safeCopySeedPhrase()" data-en="Safe Copy" data-nl="Veilig Kopiëren">Safe Copy</button>
+            <i id="resetIcon" class="fas fa-sync-alt" onclick="resetWordList()"></i>
+        </h3>
+        <ul id="wordListItems"></ul>
+        <div id="wordCounter">
+            <span data-en="Words Generated: 0" data-nl="Woorden Gegenereerd: 0">Words Generated: 0</span>
+            <i id="logIcon" class="fas fa-sticky-note" title="View Log / Bekijk Log"></i>
+        </div>
+        <div id="checksumLink">
+            <a href="https://allesvoorbitcoin.be/members/bip39tool/checksum/" data-en="Checksum Calculator" data-nl="Checksum Calculator" title="Checksum Calculator / Checksum Calculator">Checksum Calculator</a>
+        </div>
+    </div>
+    <div id="workingOverlay">
+        <span class="pulsing" data-en="Working..." data-nl="Bezig...">Working...</span>
+    </div>
+    <div id="infoOverlay">
+        <div id="infoContent">
+            <h3 data-en="Info" data-nl="Info">Info</h3>
+            <p data-en="This page generates random numbers and BIP39 words for a seedphrase using user input or external entropy sources (e.g., Swatch .beats, Block Height, HTTP Latency, Bxl Rail Traffic, LavaRand, Dice Roll). Randomness is influenced by Light/Dark mode (jump calculation), salt level, and the chosen entropy source. For best use, run locally for basic, secure functionality (offline), or online with all external sources enabled for maximum entropy." data-nl="Deze pagina genereert willekeurige nummers en BIP39-woorden voor een seedphrase met gebruikersinvoer of externe entropiebronnen (bijv. Swatch .beats, Blokhoogte, HTTP Latentie, Bxl Spoorverkeer, LavaRand, Dobbelstenen). Willekeur wordt beïnvloed door Licht/Donker modus (sprongberekening), zoutniveau en de gekozen entropiebron. Voor het beste gebruik, lokaal draaien voor basis, veilige functionaliteit (offline), of online met alle externe bronnen ingeschakeld voor maximale entropie.">This page generates random numbers and BIP39 words for a seedphrase using user input or external entropy sources (e.g., Swatch .beats, Block Height, HTTP Latency, Bxl Rail Traffic, LavaRand, Dice Roll). Randomness is influenced by Light/Dark mode (jump calculation), salt level, and the chosen entropy source. For best use, run locally for basic, secure functionality (offline), or online with all external sources enabled for maximum entropy.</p>
+            <i id="closeInfo" class="fas fa-times" title="Close / Sluiten"></i>
+        </div>
+    </div>
+    <div id="logOverlay">
+        <div id="logContent">
+            <h3 data-en="Log" data-nl="Log">Log</h3>
+            <ul id="logList"></ul>
+            <i id="closeLog" class="fas fa-times" title="Close / Sluiten"></i>
+        </div>
+    </div>
+    <div id="entropyPopup">
+        <div id="entropyPopupContent">
+            <h3 data-en="Missing Entropy" data-nl="Ontbrekende Entropie">Missing Entropy</h3>
+            <p data-en="Enter entropy or accept suggestion." data-nl="Voer entropie in of accepteer suggestie.">Enter entropy or accept suggestion.</p>
+            <p id="suggestedEntropy" data-en="Suggested: " data-nl="Voorgesteld: ">Suggested: </p>
+            <button onclick="acceptSuggestedEntropy()" data-en="Accept" data-nl="Accepteren">Accept</button>
+            <button onclick="closeEntropyPopup()" data-en="Cancel" data-nl="Annuleren">Cancel</button>
+            <i id="entropyPopupClose" class="fas fa-times" title="Close / Sluiten"></i>
+        </div>
+    </div>
+    <div id="safeCopyPopup">
+        <div id="safeCopyPopupContent">
+            <h3 data-en="Safe Copy Seed Phrase" data-nl="Veilig Seedphrase Kopiëren">Safe Copy Seed Phrase</h3>
+            <p data-en="Manually select and copy the seed phrase below (e.g., Ctrl+C or Cmd+C):" data-nl="Selecteer en kopieer de seedphrase hieronder handmatig (bijv. Ctrl+C of Cmd+C):">Manually select and copy the seed phrase below (e.g., Ctrl+C or Cmd+C):</p>
+            <textarea id="seedPhraseText" readonly></textarea>
+            <button onclick="closeSafeCopyPopup()" data-en="Close" data-nl="Sluiten">Close</button>
+        </div>
+    </div>
+    <div id="summaryOverlay">
+        <div id="summaryContent">
+            <h3 data-en="What Does This Do?" data-nl="Wat Doet Dit?">What Does This Do?</h3>
+            <p id="summaryText" data-en="Randomizer 3000 generates secure BIP39 seed words (up to 23) for cryptocurrency wallets using diverse entropy sources: user input, Swatch .beats, Bitcoin block height, HTTP latency, local randomness, transit traffic (Brussels trains or San Francisco buses based on time), LavaRand, or dice rolls. Users can generate one word or a full set, with randomness adjusted by light/dark mode jumps and optional salt levels. It supports online (external APIs) or offline (local entropy) modes, displays results with logs, and offers safe copying and checksum links." data-nl="Randomizer 3000 genereert veilige BIP39-zaadwoorden (tot 23) voor cryptocurrency-wallets met diverse entropiebronnen: gebruikersinvoer, Swatch .beats, Bitcoin-blokhoogte, HTTP-latentie, lokale willekeur, transitverkeer (Brusselse treinen of San Francisco-bussen afhankelijk van tijd), LavaRand, of dobbelstenen. Gebruikers kunnen één woord of een volledige set genereren, met willekeur aangepast door sprongen in licht/donker-modus en optionele zoutniveaus. Het ondersteunt online (externe API's) of offline (lokale entropie) modi, toont resultaten met logs, en biedt veilige kopieeropties en checksum-links.">Randomizer 3000 generates secure BIP39 seed words (up to 23) for cryptocurrency wallets using diverse entropy sources: user input, Swatch .beats, Bitcoin block height, HTTP latency, local randomness, transit traffic (Brussels trains or San Francisco buses based on time), LavaRand, or dice rolls. Users can generate one word or a full set, with randomness adjusted by light/dark mode jumps and optional salt levels. It supports online (external APIs) or offline (local entropy) modes, displays results with logs, and offers safe copying and checksum links.</p>
+            <i id="closeSummary" class="fas fa-times" title="Close / Sluiten"></i>
+        </div>
+    </div>
+    <footer>
+        <div class="footer-container">
+            <div class="footer-links">
+                <ul>
+                    <li><a href="https://coinos.io/pay/allesvoorbitcoin" data-en="Donate" data-nl="Doneer">Donate / Doneer</a></li>
+                    <li><a href="https://github.com/avbpodcast/randomizer3000/" data-en="SHA256 Key" data-nl="SHA256 Sleutel">SHA256 Key / SHA256 Sleutel</a></li>
+                    <li><a href="https://allesvoorbitcoin.be/" data-en="Home" data-nl="Home">Home</a></li>
+                    <li><a href="#" onclick="showSummary()" data-en="What does this do?" data-nl="Wat doet dit?">What does this do? / Wat doet dit?</a></li>
+                    <li><button onclick="downloadFile()" data-en="Download" data-nl="Download">Download</button></li>
+                    <li><span class="version">v 2025.04.03</span></li>
+                </ul>
+            </div>
+            <div class="footer-warning">
+                <strong data-en="WARNING:" data-nl="WAARSCHUWING:">WARNING:</strong>
+                <span data-en="Always add your own passphrase to any seed phrase after calculating the checksum (12th/24th word) with a tool like " data-nl="Voeg altijd je eigen wachtwoord toe aan een seedphrase na het berekenen van de checksum (12e/24e woord) met een tool zoals ">Always add your own passphrase to any seed phrase after calculating the checksum (12th/24th word) with a tool like </span>
+                <a href="https://allesvoorbitcoin.be/members/bip39tool/checksum/" target="_blank">this one / deze</a>.
+                <span data-en=" Never share your full seed or passphrase online. We’re not liable for misuse or loss." data-nl=" Deel nooit je volledige seed of wachtwoord online. Wij zijn niet aansprakelijk voor misbruik of verlies."> Never share your full seed or passphrase online. We’re not liable for misuse or loss.</span>
+            </div>
+        </div>
+    </footer>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/js-sha256/0.9.0/sha256.min.js"></script>
+    <script>
+        const numberArray = Array.from({ length: 2048 }, (_, i) => i + 1);
+        const bip39WordList = ["abandon", "ability", "able", "about", "above", "absent", "absorb", "abstract", "absurd", "abuse", "access", "accident", "account", "accuse", "achieve", "acid", "acoustic", "acquire", "across", "act", "action", "actor", "actress", "actual", "adapt", "add", "addict", "address", "adjust", "admit", "adult", "advance", "advice", "aerobic", "affair", "afford", "afraid", "again", "age", "agent", "agree", "ahead", "aim", "air", "airport", "aisle", "alarm", "album", "alcohol", "alert", "alien", "all", "alley", "allow", "almost", "alone", "alpha", "already", "also", "alter", "always", "amateur", "amazing", "among", "amount", "amused", "analyst", "anchor", "ancient", "anger", "angle", "angry", "animal", "ankle", "announce", "annual", "another", "answer", "antenna", "antique", "anxiety", "any", "apart", "apology", "appear", "apple", "approve", "april", "arch", "arctic", "area", "arena", "argue", "arm", "armed", "armor", "army", "around", "arrange", "arrest", "arrive", "arrow", "art", "artefact", "artist", "artwork", "ask", "aspect", "assault", "asset", "assist", "assume", "asthma", "athlete", "atom", "attack", "attend", "attitude", "attract", "auction", "audit", "august", "aunt", "author", "auto", "autumn", "average", "avocado", "avoid", "awake", "aware", "away", "awesome", "awful", "awkward", "axis", "baby", "bachelor", "bacon", "badge", "bag", "balance", "balcony", "ball", "bamboo", "banana", "banner", "bar", "barely", "bargain", "barrel", "base", "basic", "basket", "battle", "beach", "bean", "beauty", "because", "become", "beef", "before", "begin", "behave", "behind", "believe", "below", "belt", "bench", "benefit", "best", "betray", "better", "between", "beyond", "bicycle", "bid", "bike", "bind", "biology", "bird", "birth", "bitter", "black", "blade", "blame", "blanket", "blast", "bleak", "bless", "blind", "blood", "blossom", "blouse", "blue", "blur", "blush", "board", "boat", "body", "boil", "bomb", "bone", "bonus", "book", "boost", "border", "boring", "borrow", "boss", "bottom", "bounce", "box", "boy", "bracket", "brain", "brand", "brass", "brave", "bread", "breeze", "brick", "bridge", "brief", "bright", "bring", "brisk", "broccoli", "broken", "bronze", "broom", "brother", "brown", "brush", "bubble", "buddy", "budget", "buffalo", "build", "bulb", "bulk", "bullet", "bundle", "bunker", "burden", "burger", "burst", "bus", "business", "busy", "butter", "buyer", "buzz", "cabbage", "cabin", "cable", "cactus", "cage", "cake", "call", "calm", "camera", "camp", "can", "canal", "cancel", "candy", "cannon", "canoe", "canvas", "canyon", "capable", "capital", "captain", "car", "carbon", "card", "cargo", "carpet", "carry", "cart", "case", "cash", "casino", "castle", "casual", "cat", "catalog", "catch", "category", "cattle", "caught", "cause", "caution", "cave", "ceiling", "celery", "cement", "census", "century", "cereal", "certain", "chair", "chalk", "champion", "change", "chaos", "chapter", "charge", "chase", "chat", "cheap", "check", "cheese", "chef", "cherry", "chest", "chicken", "chief", "child", "chimney", "choice", "choose", "chronic", "chuckle", "chunk", "churn", "cigar", "cinnamon", "circle", "citizen", "city", "civil", "claim", "clap", "clarify", "claw", "clay", "clean", "clerk", "clever", "click", "client", "cliff", "climb", "clinic", "clip", "clock", "clog", "close", "cloth", "cloud", "clown", "club", "clump", "cluster", "clutch", "coach", "coast", "coconut", "code", "coffee", "coil", "coin", "collect", "color", "column", "combine", "come", "comfort", "comic", "common", "company", "concert", "conduct", "confirm", "congress", "connect", "consider", "control", "convince", "cook", "cool", "copper", "copy", "coral", "core", "corn", "correct", "cost", "cotton", "couch", "country", "couple", "course", "cousin", "cover", "coyote", "crack", "cradle", "craft", "cram", "crane", "crash", "crater", "crawl", "crazy", "cream", "credit", "creek", "crew", "cricket", "crime", "crisp", "critic", "crop", "cross", "crouch", "crowd", "crucial", "cruel", "cruise", "crumble", "crunch", "crush", "cry", "crystal", "cube", "culture", "cup", "cupboard", "curious", "current", "curtain", "curve", "cushion", "custom", "cute", "cycle", "dad", "damage", "damp", "dance", "danger", "daring", "dash", "daughter", "dawn", "day", "deal", "debate", "debris", "decade", "december", "decide", "decline", "decorate", "decrease", "deer", "defense", "define", "defy", "degree", "delay", "deliver", "demand", "demise", "denial", "dentist", "deny", "depart", "depend", "deposit", "depth", "deputy", "derive", "describe", "desert", "design", "desk", "despair", "destroy", "detail", "detect", "develop", "device", "devote", "diagram", "dial", "diamond", "diary", "dice", "diesel", "diet", "differ", "digital", "dignity", "dilemma", "dinner", "dinosaur", "direct", "dirt", "disagree", "discover", "disease", "dish", "dismiss", "disorder", "display", "distance", "divert", "divide", "divorce", "dizzy", "doctor", "document", "dog", "doll", "dolphin", "domain", "donate", "donkey", "donor", "door", "dose", "double", "dove", "draft", "dragon", "drama", "drastic", "draw", "dream", "dress", "drift", "drill", "drink", "drip", "drive", "drop", "drum", "dry", "duck", "dumb", "dune", "during", "dust", "dutch", "duty", "dwarf", "dynamic", "eager", "eagle", "early", "earn", "earth", "easily", "east", "easy", "echo", "ecology", "economy", "edge", "edit", "educate", "effort", "egg", "eight", "either", "elbow", "elder", "electric", "elegant", "element", "elephant", "elevator", "elite", "else", "embark", "embody", "embrace", "emerge", "emotion", "employ", "empower", "empty", "enable", "enact", "end", "endless", "endorse", "enemy", "energy", "enforce", "engage", "engine", "enhance", "enjoy", "enlist", "enough", "enrich", "enroll", "ensure", "enter", "entire", "entry", "envelope", "episode", "equal", "equip", "era", "erase", "erode", "erosion", "error", "erupt", "escape", "essay", "essence", "estate", "eternal", "ethics", "evidence", "evil", "evoke", "evolve", "exact", "example", "excess", "exchange", "excite", "exclude", "excuse", "execute", "exercise", "exhaust", "exhibit", "exile", "exist", "exit", "exotic", "expand", "expect", "expire", "explain", "expose", "express", "extend", "extra", "eye", "eyebrow", "fabric", "face", "faculty", "fade", "faint", "faith", "fall", "false", "fame", "family", "famous", "fan", "fancy", "fantasy", "farm", "fashion", "fat", "fatal", "father", "fatigue", "fault", "favorite", "feature", "february", "federal", "fee", "feed", "feel", "female", "fence", "festival", "fetch", "fever", "few", "fiber", "fiction", "field", "figure", "file", "film", "filter", "final", "find", "fine", "finger", "finish", "fire", "firm", "first", "fiscal", "fish", "fit", "fitness", "fix", "flag", "flame", "flash", "flat", "flavor", "flee", "flight", "flip", "float", "flock", "floor", "flower", "fluid", "flush", "fly", "foam", "focus", "fog", "foil", "fold", "follow", "food", "foot", "force", "forest", "forget", "fork", "fortune", "forum", "forward", "fossil", "foster", "found", "fox", "fragile", "frame", "frequent", "fresh", "friend", "fringe", "frog", "front", "frost", "frown", "frozen", "fruit", "fuel", "fun", "funny", "furnace", "fury", "future", "gadget", "gain", "galaxy", "gallery", "game", "gap", "garage", "garbage", "garden", "garlic", "garment", "gas", "gasp", "gate", "gather", "gauge", "gaze", "general", "genius", "genre", "gentle", "genuine", "gesture", "ghost", "giant", "gift", "giggle", "ginger", "giraffe", "girl", "give", "glad", "glance", "glare", "glass", "glide", "glimpse", "globe", "gloom", "glory", "glove", "glow", "glue", "goat", "goddess", "gold", "good", "goose", "gorilla", "gospel", "gossip", "govern", "gown", "grab", "grace", "grain", "grant", "grape", "grass", "gravity", "great", "green", "grid", "grief", "grit", "grocery", "group", "grow", "grunt", "guard", "guess", "guide", "guilt", "guitar", "gun", "gym", "habit", "hair", "half", "hammer", "hamster", "hand", "happy", "harbor", "hard", "harsh", "harvest", "hat", "have", "hawk", "hazard", "head", "health", "heart", "heavy", "hedgehog", "height", "hello", "helmet", "help", "hen", "hero", "hidden", "high", "hill", "hint", "hip", "hire", "history", "hobby", "hockey", "hold", "hole", "holiday", "hollow", "home", "honey", "hood", "hope", "horn", "horror", "horse", "hospital", "host", "hotel", "hour", "hover", "hub", "huge", "human", "humble", "humor", "hundred", "hungry", "hunt", "hurdle", "hurry", "hurt", "husband", "hybrid", "ice", "icon", "idea", "identify", "idle", "ignore", "ill", "illegal", "illness", "image", "imitate", "immense", "immune", "impact", "impose", "improve", "impulse", "inch", "include", "income", "increase", "index", "indicate", "indoor", "industry", "infant", "inflict", "inform", "inhale", "inherit", "initial", "inject", "injury", "inmate", "inner", "innocent", "input", "inquiry", "insane", "insect", "inside", "inspire", "install", "intact", "interest", "into", "invest", "invite", "involve", "iron", "island", "isolate", "issue", "item", "ivory", "jacket", "jaguar", "jar", "jazz", "jealous", "jeans", "jelly", "jewel", "job", "join", "joke", "journey", "joy", "judge", "juice", "jump", "jungle", "junior", "junk", "just", "kangaroo", "keen", "keep", "ketchup", "key", "kick", "kid", "kidney", "kind", "kingdom", "kiss", "kit", "kitchen", "kite", "kitten", "kiwi", "knee", "knife", "knock", "know", "lab", "label", "labor", "ladder", "lady", "lake", "lamp", "language", "laptop", "large", "later", "latin", "laugh", "laundry", "lava", "law", "lawn", "lawsuit", "layer", "lazy", "leader", "leaf", "learn", "leave", "lecture", "left", "leg", "legal", "legend", "leisure", "lemon", "lend", "length", "lens", "leopard", "lesson", "letter", "level", "liar", "liberty", "library", "license", "life", "lift", "light", "like", "limb", "limit", "link", "lion", "liquid", "list", "little", "live", "lizard", "load", "loan", "lobster", "local", "lock", "logic", "lonely", "long", "loop", "lottery", "loud", "lounge", "love", "loyal", "lucky", "luggage", "lumber", "lunar", "lunch", "luxury", "lyrics", "machine", "mad", "magic", "magnet", "maid", "mail", "main", "major", "make", "mammal", "man", "manage", "mandate", "mango", "mansion", "manual", "maple", "marble", "march", "margin", "marine", "market", "marriage", "mask", "mass", "master", "match", "material", "math", "matrix", "matter", "maximum", "maze", "meadow", "mean", "measure", "meat", "mechanic", "medal", "media", "melody", "melt", "member", "memory", "mention", "menu", "mercy", "merge", "merit", "merry", "mesh", "message", "metal", "method", "middle", "midnight", "milk", "million", "mimic", "mind", "minimum", "minor", "minute", "miracle", "mirror", "misery", "miss", "mistake", "mix", "mixed", "mixture", "mobile", "model", "modify", "mom", "moment", "monitor", "monkey", "monster", "month", "moon", "moral", "more", "morning", "mosquito", "mother", "motion", "motor", "mountain", "mouse", "move", "movie", "much", "muffin", "mule", "multiply", "muscle", "museum", "mushroom", "music", "must", "mutual", "myself", "mystery", "myth", "naive", "name", "napkin", "narrow", "nasty", "nation", "nature", "near", "neck", "need", "negative", "neglect", "neither", "nephew", "nerve", "nest", "net", "network", "neutral", "never", "news", "next", "nice", "night", "noble", "noise", "nominee", "noodle", "normal", "north", "nose", "notable", "note", "nothing", "notice", "novel", "now", "nuclear", "number", "nurse", "nut", "oak", "obey", "object", "oblige", "obscure", "observe", "obtain", "obvious", "occur", "ocean", "october", "odor", "off", "offer", "office", "often", "oil", "okay", "old", "olive", "olympic", "omit", "once", "one", "onion", "online", "only", "open", "opera", "opinion", "oppose", "option", "orange", "orbit", "orchard", "order", "ordinary", "organ", "orient", "original", "orphan", "ostrich", "other", "outdoor", "outer", "output", "outside", "oval", "oven", "over", "own", "owner", "oxygen", "oyster", "ozone", "pact", "paddle", "page", "pair", "palace", "palm", "panda", "panel", "panic", "panther", "paper", "parade", "parent", "park", "parrot", "party", "pass", "patch", "path", "patient", "patrol", "pattern", "pause", "pave", "payment", "peace", "peanut", "pear", "peasant", "pelican", "pen", "penalty", "pencil", "people", "pepper", "perfect", "permit", "person", "pet", "phone", "photo", "phrase", "physical", "piano", "picnic", "picture", "piece", "pig", "pigeon", "pill", "pilot", "pink", "pioneer", "pipe", "pistol", "pitch", "pizza", "place", "planet", "plastic", "plate", "play", "please", "pledge", "pluck", "plug", "plunge", "poem", "poet", "point", "polar", "pole", "police", "pond", "pony", "pool", "popular", "portion", "position", "possible", "post", "potato", "pottery", "poverty", "powder", "power", "practice", "praise", "predict", "prefer", "prepare", "present", "pretty", "prevent", "price", "pride", "primary", "print", "priority", "prison", "private", "prize", "problem", "process", "produce", "profit", "program", "project", "promote", "proof", "property", "prosper", "protect", "proud", "provide", "public", "pudding", "pull", "pulp", "pulse", "pumpkin", "punch", "pupil", "puppy", "purchase", "purity", "purpose", "purse", "push", "put", "puzzle", "pyramid", "quality", "quantum", "quarter", "question", "quick", "quit", "quiz", "quote", "rabbit", "raccoon", "race", "rack", "radar", "radio", "rail", "rain", "raise", "rally", "ramp", "ranch", "random", "range", "rapid", "rare", "rate", "rather", "raven", "raw", "razor", "ready", "real", "reason", "rebel", "rebuild", "recall", "receive", "recipe", "record", "recycle", "reduce", "reflect", "reform", "refuse", "region", "regret", "regular", "reject", "relax", "release", "relief", "rely", "remain", "remember", "remind", "remove", "render", "renew", "rent", "reopen", "repair", "repeat", "replace", "report", "require", "rescue", "resemble", "resist", "resource", "response", "result", "retire", "retreat", "return", "reunion", "reveal", "review", "reward", "rhythm", "rib", "ribbon", "rice", "rich", "ride", "ridge", "rifle", "right", "rigid", "ring", "riot", "ripple", "risk", "ritual", "rival", "river", "road", "roast", "robot", "robust", "rocket", "romance", "roof", "rookie", "room", "rose", "rotate", "rough", "round", "route", "royal", "rubber", "rude", "rug", "rule", "run", "runway", "rural", "sad", "saddle", "sadness", "safe", "sail", "salad", "salmon", "salon", "salt", "salute", "same", "sample", "sand", "satisfy", "satoshi", "sauce", "sausage", "save", "say", "scale", "scan", "scare", "scatter", "scene", "scheme", "school", "science", "scissors", "scorpion", "scout", "scrap", "screen", "script", "scrub", "sea", "search", "season", "seat", "second", "secret", "section", "security", "seed", "seek", "segment", "select", "sell", "seminar", "senior", "sense", "sentence", "series", "service", "session", "settle", "setup", "seven", "shadow", "shaft", "shallow", "share", "shed", "shell", "sheriff", "shield", "shift", "shine", "ship", "shiver", "shock", "shoe", "shoot", "shop", "short", "shoulder", "shove", "shrimp", "shrug", "shuffle", "shy", "sibling", "sick", "side", "siege", "sight", "sign", "silent", "silk", "silly", "silver", "similar", "simple", "since", "sing", "siren", "sister", "situate", "six", "size", "skate", "sketch", "ski", "skill", "skin", "skirt", "skull", "slab", "slam", "sleep", "slender", "slice", "slide", "slight", "slim", "slogan", "slot", "slow", "slush", "small", "smart", "smile", "smoke", "smooth", "snack", "snake", "snap", "sniff", "snow", "soap", "soccer", "social", "sock", "soda", "soft", "solar", "soldier", "solid", "solution", "solve", "someone", "song", "soon", "sorry", "sort", "soul", "sound", "soup", "source", "south", "space", "spare", "spatial", "spawn", "speak", "special", "speed", "spell", "spend", "sphere", "spice", "spider", "spike", "spin", "spirit", "split", "spoil", "sponsor", "spoon", "sport", "spot", "spray", "spread", "spring", "spy", "square", "squeeze", "squirrel", "stable", "stadium", "staff", "stage", "stairs", "stamp", "stand", "start", "state", "stay", "steak", "steel", "stem", "step", "stereo", "stick", "still", "sting", "stock", "stomach", "stone", "stool", "story", "stove", "strategy", "street", "strike", "strong", "struggle", "student", "stuff", "stumble", "style", "subject", "submit", "subway", "success", "such", "sudden", "suffer", "sugar", "suggest", "suit", "summer", "sun", "sunny", "sunset", "super", "supply", "supreme", "sure", "surface", "surge", "surprise", "surround", "survey", "suspect", "sustain", "swallow", "swamp", "swap", "swarm", "swear", "sweet", "swift", "swim", "swing", "switch", "sword", "symbol", "symptom", "syrup", "system", "table", "tackle", "tag", "tail", "talent", "talk", "tank", "tape", "target", "task", "taste", "tattoo", "taxi", "teach", "team", "tell", "ten", "tenant", "tennis", "tent", "term", "test", "text", "thank", "that", "theme", "then", "theory", "there", "they", "thing", "this", "thought", "three", "thrive", "throw", "thumb", "thunder", "ticket", "tide", "tiger", "tilt", "timber", "time", "tiny", "tip", "tired", "tissue", "title", "toast", "tobacco", "today", "toddler", "toe", "together", "toilet", "token", "tomato", "tomorrow", "tone", "tongue", "tonight", "tool", "tooth", "top", "topic", "topple", "torch", "tornado", "tortoise", "toss", "total", "tourist", "toward", "tower", "town", "toy", "track", "trade", "traffic", "tragic", "train", "transfer", "trap", "trash", "travel", "tray", "treat", "tree", "trend", "trial", "tribe", "trick", "trigger", "trim", "trip", "trophy", "trouble", "truck", "true", "truly", "trumpet", "trust", "truth", "try", "tube", "tuition", "tumble", "tuna", "tunnel", "turkey", "turn", "turtle", "twelve", "twenty", "twice", "twin", "twist", "two", "type", "typical", "ugly", "umbrella", "unable", "unaware", "uncle", "uncover", "under", "undo", "unfair", "unfold", "unhappy", "uniform", "unique", "unit", "universe", "unknown", "unlock", "until", "unusual", "unveil", "update", "upgrade", "uphold", "upon", "upper", "upset", "urban", "urge", "usage", "use", "used", "useful", "useless", "usual", "utility", "vacant", "vacuum", "vague", "valid", "valley", "valve", "van", "vanish", "vapor", "various", "vast", "vault", "vehicle", "velvet", "vendor", "venture", "venue", "verb", "verify", "version", "very", "vessel", "veteran", "viable", "vibrant", "vicious", "victory", "video", "view", "village", "vintage", "violin", "virtual", "virus", "visa", "visit", "visual", "vital", "vivid", "vocal", "voice", "void", "volcano", "volume", "vote", "voyage", "wage", "wagon", "wait", "walk", "wall", "walnut", "want", "warfare", "warm", "warrior", "wash", "wasp", "waste", "water", "wave", "way", "wealth", "weapon", "wear", "weasel", "weather", "web", "wedding", "weekend", "weird", "welcome", "west", "wet", "whale", "what", "wheat", "wheel", "when", "where", "whip", "whisper", "wide", "width", "wife", "wild", "will", "win", "window", "wine", "wing", "wink", "winner", "winter", "wire", "wisdom", "wise", "wish", "witness", "wolf", "woman", "wonder", "wood", "wool", "word", "work", "world", "worry", "worth", "wrap", "wreck", "wrestle", "wrist", "write", "wrong", "yard", "year", "yellow", "you", "young", "youth", "zebra", "zero", "zone", "zoo" ]; 
+        
+        let generatedWords = JSON.parse(localStorage.getItem('generatedWords')) || [];
+        const entropySources = ['user', 'beats', 'blockHeight', 'httpLatency', 'fairMaxEntropy', 'transitTraffic', 'lavaRand', 'diceRoll'];
+        const latencySites = [
+            "https://www.bitcoin.org", "https://mempool.space", "https://www.google.com", "https://www.baidu.com",
+            "https://www.bbc.co.uk", "https://www.sbs.com.au", "https://www.ntv.co.jp", "https://www.indiatimes.com",
+            "https://www.24sata.hr", "https://www.elmundo.es", "https://www.globo.com", "https://www.news24.com",
+            "https://one.one.one.one/", "https://quad9.com/", "https://duckduckgo.com/", "https://apple.com/"
+        ];
+        const saltLevels = [
+            "OFF", "A grain", "A pinch", "A knife tip", "A dash", "A small amount",
+            "A teaspoon", "A tablespoon", "A generous amount", "Heavily salted", "A bag of salt"
+        ];
+        let lastRunLog = JSON.parse(localStorage.getItem('lastRunLog')) || [];
+        let suggestedEntropy = '';
+        let lavaRandCallCount = 0;
+        let lastInteractionTime = performance.now();
+        let currentLanguage = 'en';
+        let isOnline = true;
+
+        document.addEventListener('click', () => lastInteractionTime = performance.now());
+        document.addEventListener('keydown', () => lastInteractionTime = performance.now());
+        document.addEventListener('touchstart', () => lastInteractionTime = performance.now());
+
+        function updateTransitTrafficOption() {
+            const now = new Date();
+            const brusselsTZ = Intl.DateTimeFormat('en-US', { timeZone: 'Europe/Brussels', hour: 'numeric', hour12: false }).format(now);
+            const brusselsHour = parseInt(brusselsTZ);
+            const isNight = brusselsHour >= 23 || brusselsHour < 6;
+
+            const transitOption = document.querySelector('#entropySource option[value="transitTraffic"]');
+            const langPrefix = currentLanguage === 'en' ? 'en' : 'nl';
+            transitOption.textContent = transitOption.getAttribute(`data-${langPrefix}-bxrt`);
+        }
+
+        function switchLanguage(lang) {
+            currentLanguage = lang;
+            document.querySelectorAll('.language-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelector(`.language-btn[onclick="switchLanguage('${lang}')"]`).classList.add('active');
+            document.documentElement.lang = lang === 'en' ? 'en' : 'nl';
+
+            document.querySelectorAll('[data-en]').forEach(element => {
+                const key = lang === 'en' ? 'data-en' : 'data-nl';
+                const text = element.getAttribute(key) || element.getAttribute('data-en');
+                if (element.tagName === 'INPUT' && element.hasAttribute('placeholder')) {
+                    element.placeholder = text;
+                } else if (element.id === 'wordCounter' && element.querySelector('span')) {
+                    element.querySelector('span').textContent = text.replace('0', generatedWords.length);
+                } else if (element.id === 'lever-label') {
+                    element.textContent = isOnline ? text : (lang === 'en' ? 'Offline' : 'Offline');
+                } else if (element.tagName === 'SPAN' || !element.children.length) {
+                    element.textContent = text;
+                }
+            });
+
+            document.querySelectorAll('[title]').forEach(element => {
+                const title = element.getAttribute('title').split(' / ');
+                element.title = lang === 'en' ? title[0] : title[1] || title[0];
+            });
+
+            const saltSlider = document.getElementById('saltSlider');
+            document.getElementById('saltTooltip').textContent = saltLevels[saltSlider.value];
+            updateWordCounter();
+            updateTransitTrafficOption();
+        }
+
+        function toggleMode() {
+            const mode = document.getElementById('modeSelect').value;
+            document.body.className = (mode === 'light') ? 'light' : 'dark';
+            if (!isOnline) document.body.classList.add('offline-mode');
+            const entropyInput = document.getElementById('entropyInput');
+            entropyInput.style.border = (mode === 'light') ? '1px solid #999' : '1px solid #666';
+            if (entropyInput.classList.contains('invalid-input')) {
+                entropyInput.style.border = '2px solid red';
+            }
+        }
+
+        function getRandomJump() {
+            const now = new Date();
+            const timeOfDay = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
+            const userDelay = performance.now();
+            return Math.floor((timeOfDay + userDelay) % 2048);
+        }
+
+        function reduceLargeNumber(input) {
+            if (input <= 2048 && input >= 1) return Math.floor(input);
+            const hash = sha256(input.toString());
+            const hashInt = parseInt(hash.substring(0, 8), 16);
+            return (hashInt % 2048) + 1;
+        }
+
+        function adjustEntropy(entropy, mode) {
+            let num = parseFloat(entropy);
+            while (num > 2048) {
+                num = num / 2;
+                if (mode === 'light') num = Math.ceil(num);
+                else num = Math.floor(num);
+            }
+            return Math.max(1, num);
+        }
+
+        function getSwatchBeats() {
+            const now = new Date();
+            const utcPlus1 = new Date(now.getTime() + 3600000);
+            const secondsInDay = (utcPlus1.getUTCHours() * 3600 + utcPlus1.getUTCMinutes() * 60 + utcPlus1.getUTCSeconds());
+            return Math.floor(secondsInDay / 86.4);
+        }
+
+        async function getLatestBlockHeight() {
+            try {
+                const response = await fetch('https://blockstream.info/api/blocks/tip/height');
+                if (!response.ok) throw new Error('Blockstream failed');
+                return parseInt(await response.text());
+            } catch {
+                return 833927;
+            }
+        }
+
+        async function getHttpLatency() {
+            const url = latencySites[Math.floor(Math.random() * latencySites.length)];
+            const startTime = performance.now();
+            try {
+                await fetch(url, { mode: 'no-cors' });
+                return { value: Math.round(performance.now() - startTime), url };
+            } catch {
+                return { value: 500, url };
+            }
+        }
+
+        function getFairMaxEntropy() {
+            const now = new Date();
+            const seconds = now.getSeconds();
+            const milliseconds = now.getMilliseconds();
+            const baseRoll = Math.floor(Math.random() * 6) + 1;
+            const timeOfDay = now.getHours() * 3600 + now.getMinutes() * 60 + seconds;
+            const userDelay = Math.min(performance.now() - lastInteractionTime, 65000);
+            const mouseEntropy = Math.floor(userDelay % 1000);
+            
+            let resourceEntropy = 0;
+            if (isOnline) {
+                const resources = performance.getEntriesByType('resource');
+                if (resources.length > 0) {
+                    const resource = resources[0];
+                    const transferSize = resource.transferSize || 0;
+                    const dnsTime = resource.domainLookupEnd - resource.domainLookupStart || 0;
+                    const connectTime = resource.connectEnd - resource.connectStart || 0;
+                    resourceEntropy = Math.floor((transferSize + dnsTime + connectTime) % 2048);
+                }
+            } else {
+                resourceEntropy = Math.floor(Math.random() * 2048) + 1;
+            }
+
+            const entropyString = `${seconds}${milliseconds}${baseRoll}${timeOfDay}${mouseEntropy}${resourceEntropy}`;
+            const hash = sha256(entropyString);
+            const hashInt = parseInt(hash.substring(0, 8), 16);
+            
+            const fairAdjust = (seconds % 6) + 1;
+            const fairValue = (baseRoll * fairAdjust + (milliseconds % 10) + (mouseEntropy % 100) + (resourceEntropy % 100)) % 2048;
+            const scaledValue = Math.max(1, ((hashInt % 2048) ^ fairValue) + (resourceEntropy % 10));
+            
+            const summary = `${currentLanguage === 'en' ? 'Fair Max Entropy' : 'Eerlijke Max Entropie'}: ${scaledValue} ` +
+                            `(Base Roll: ${baseRoll}, Seconds: ${seconds}, Millis: ${milliseconds}, ` +
+                            `TimeOfDay: ${timeOfDay}, MouseEntropy: ${mouseEntropy}, ResourceEntropy: ${resourceEntropy})`;
+            return { value: scaledValue, summary: summary };
+        }
+
+        async function getBxlRailTraffic() {
+            const fetchTime = new Date().toLocaleString();
+            try {
+                const response = await fetch('https://api.irail.be/liveboard/?station=Brussels-Central&fast=true&format=json', {
+                    cache: 'no-store'
+                });
+                if (!response.ok) throw new Error(`iRail API failed: ${response.status}`);
+                const data = await response.json();
+                const departures = data.departures.departure.slice(0, 5);
+                let entropyString = '';
+
+                departures.forEach(dep => {
+                    const delay = parseInt(dep.delay) || 0;
+                    const platform = dep.platform || '0';
+                    const canceled = dep.canceled || 0;
+                    const time = new Date(parseInt(dep.time) * 1000);
+                    const ms = time.getMilliseconds();
+                    entropyString += `${delay}${platform.charCodeAt(0)}${canceled}${ms}`;
+                });
+
+                const hash = sha256(entropyString);
+                const entropyValue = (parseInt(hash.substring(0, 8), 16) % 2048) + 1;
+                return {
+                    value: entropyValue,
+                    summary: `Bxl Rail Traffic: ${entropyValue} (Fresh Brussels-Central liveboard data, hashed delay+platform+canceled+ms, fetched at ${fetchTime})`
+                };
+            } catch (error) {
+                console.error('Bxl Rail Traffic fetch failed:', error);
+                const fallbackValue = Math.floor(Math.random() * 2048) + 1;
+                return {
+                    value: fallbackValue,
+                    summary: `Bxl Rail Traffic: Fallback random (${fallbackValue}) due to API failure (attempted at ${fetchTime})`
+                };
+            }
+        }
+
+        async function getLavaRand() {
+            const fetchTime = new Date().toLocaleString();
+            const timestamp = Date.now();
+            lavaRandCallCount = (lavaRandCallCount + 1) % 16;
+            const sliceStart = lavaRandCallCount * 4;
+
+            try {
+                const response = await fetch(`https://drand.cloudflare.com/public/latest?t=${timestamp}`, {
+                    cache: 'no-store'
+                });
+                if (!response.ok) throw new Error(`Cloudflare DRand API failed: ${response.status}`);
+                const data = await response.json();
+                const randomness = data.randomness;
+                const rawValue = parseInt(randomness.slice(sliceStart, sliceStart + 4), 16);
+                return {
+                    value: rawValue % 2048 + 1,
+                    summary: `LavaRand: ${rawValue} (${currentLanguage === 'en' ? 'Cloudflare Lava Lamps' : 'Cloudflare Lavalampen'}, round ${data.round}, slice ${sliceStart}-${sliceStart + 4}, fetched at ${fetchTime})`
+                };
+            } catch (error) {
+                console.error('LavaRand fetch failed:', error);
+                const fallbackValue = Math.floor(Math.random() * 2048) + 1;
+                return {
+                    value: fallbackValue,
+                    summary: `LavaRand: ${currentLanguage === 'en' ? 'Fallback random' : 'Terugval willekeurig'} (${fallbackValue}) ${currentLanguage === 'en' ? 'due to API failure' : 'vanwege API-falen'} (attempted at ${fetchTime})`
+                };
+            }
+        }
+
+        function getDiceRollEntropy() {
+            const blueD20 = Math.floor(Math.random() * 20) + 1;
+            const orangeD20 = Math.floor(Math.random() * 20) + 1;
+            const redD10 = Math.floor(Math.random() * 10);
+            const greenD10 = Math.floor(Math.random() * 10);
+
+            let d20Value = (blueD20 === 1) ? 0 : orangeD20;
+            const result = parseInt(`${d20Value.toString().padStart(2, '0')}${redD10}${greenD10}`);
+            let finalValue = (result > 2048) ? result % 2048 + 1 : result;
+
+            const summary = `${currentLanguage === 'en' ? 'Dice Roll (2D20+2D10)' : 'Dobbelstenen (2D20+2D10)'}: ${finalValue} ` +
+                            `(Blue D20: ${blueD20}, Orange D20: ${d20Value}, Red D10: ${redD10}, Green D10: ${greenD10})`;
+            return { value: finalValue, summary: summary };
+        }
+
+        async function getExternalEntropy(source, mode) {
+            let value, summary;
+            const now = new Date();
+            const brusselsTZ = Intl.DateTimeFormat('en-US', { timeZone: 'Europe/Brussels', hour: 'numeric', hour12: false }).format(now);
+            const brusselsHour = parseInt(brusselsTZ);
+            const isNight = brusselsHour >= 23 || brusselsHour < 6;
+
+            let effectiveSource = source;
+            if (source === 'transitTraffic') {
+                if (isNight) {
+                    effectiveSource = 'lavaRand';
+                    lastRunLog.push({
+                        timestamp: new Date().toLocaleTimeString(),
+                        action: '(Brussels rail not in operation at night)'
+                    });
+                    if (isOnline) localStorage.setItem('lastRunLog', JSON.stringify(lastRunLog));
+                } else {
+                    effectiveSource = 'bxlRailTraffic';
+                }
+            }
+
+            if (effectiveSource === 'beats') { value = getSwatchBeats(); summary = `Swatch .beats: ${value}`; }
+            else if (effectiveSource === 'blockHeight') { value = await getLatestBlockHeight(); summary = `Block Height: ${value}`; }
+            else if (effectiveSource === 'httpLatency') { const data = await getHttpLatency(); value = data.value; summary = `HTTP Latency: ${value} ms (to ${data.url})`; }
+            else if (effectiveSource === 'fairMaxEntropy') { const data = getFairMaxEntropy(); value = data.value; summary = data.summary; }
+            else if (effectiveSource === 'bxlRailTraffic') { const data = await getBxlRailTraffic(); value = data.value; summary = data.summary; }
+            else if (effectiveSource === 'lavaRand') { const data = await getLavaRand(); value = data.value; summary = data.summary; }
+            else if (effectiveSource === 'diceRoll') { const data = getDiceRollEntropy(); value = data.value; summary = data.summary; }
+            else { value = Math.floor(Math.random() * 1000); summary = `Random Fallback: ${value}`; }
+            return { value, summary };
+        }
+
+        function getBip39Word(number) {
+            const index = (number - 1) % bip39WordList.length;
+            return bip39WordList[index] || 'unknown';
+        }
+
+        function addWordToList(word) {
+            if (generatedWords.length < 23) {
+                generatedWords.push(word);
+                if (isOnline) localStorage.setItem('generatedWords', JSON.stringify(generatedWords));
+                updateWordListDisplay();
+                updateWordCounter();
+            } else {
+                alert(currentLanguage === 'en' ? 'Maximum of 23 words reached.' : 'Maximaal 23 woorden bereikt.');
+            }
+        }
+
+        function updateWordListDisplay() {
+            const wordListItems = document.getElementById('wordListItems');
+            wordListItems.innerHTML = '';
+            generatedWords.forEach((word, index) => {
+                const li = document.createElement('li');
+                li.textContent = word;
+                li.className = index < 11 ? 'orange' : 'light-blue';
+                wordListItems.appendChild(li);
+            });
+        }
+
+        function updateWordCounter() {
+            const count = generatedWords.length;
+            document.getElementById('wordCounter').querySelector('span').textContent = currentLanguage === 'en' ? `Words Generated: ${count}` : `Woorden Gegenereerd: ${count}`;
+            document.getElementById('checksumLink').style.display = (count === 11 || count === 23) ? 'block' : 'none';
+        }
+
+        function safeCopySeedPhrase() {
+            if (generatedWords.length === 0) {
+                alert(currentLanguage === 'en' ? 'No seed phrase to copy. Generate words first.' : 'Geen seedphrase om te kopiëren. Genereer eerst woorden.');
+                return;
+            }
+            
+            const seedPhrase = generatedWords.join(' ');
+            const textArea = document.getElementById('seedPhraseText');
+            textArea.value = seedPhrase;
+            document.getElementById('safeCopyPopup').style.display = 'flex';
+            
+            lastRunLog.push({
+                timestamp: new Date().toLocaleTimeString(),
+                action: 'Safe copy initiated',
+                seedPhraseLength: generatedWords.length
+            });
+            if (isOnline) localStorage.setItem('lastRunLog', JSON.stringify(lastRunLog));
+        }
+
+        function closeSafeCopyPopup() {
+            document.getElementById('safeCopyPopup').style.display = 'none';
+        }
+
+        function resetWordList() {
+            console.log('Reset clicked');
+            const resetButton = document.querySelector('.reset-btn');
+            const resetIcon = document.getElementById('resetIcon');
+            
+            if (resetButton) resetButton.classList.add('spinning');
+            if (resetIcon) resetIcon.classList.add('spinning');
+            
+            setTimeout(() => {
+                if (resetButton) resetButton.classList.remove('spinning');
+                if (resetIcon) resetIcon.classList.remove('spinning');
+                
+                generatedWords = [];
+                lastRunLog = [];
+                if (isOnline) {
+                    localStorage.setItem('generatedWords', JSON.stringify(generatedWords));
+                    localStorage.setItem('lastRunLog', JSON.stringify(lastRunLog));
+                }
+                updateWordListDisplay();
+                updateWordCounter();
+                
+                console.log(currentLanguage === 'en' ? 'Word list and log reset' : 'Woordenlijst en log gereset');
+            }, 500);
+        }
+
+        function generateRandomEntropy() {
+            const now = performance.now();
+            const delay = Math.min(now - lastInteractionTime, 65000);
+            const hash = sha256(delay.toString());
+            const digitCount = Math.floor((delay % 20) + 2);
+            let randomNum = '';
+            for (let i = 0; i < digitCount; i++) {
+                randomNum += Math.floor(Math.random() * 10);
+            }
+            return randomNum;
+        }
+
+        function showEntropyPopup(callback) {
+            const entropyInput = document.getElementById('entropyInput');
+            entropyInput.classList.add('flash-red');
+            suggestedEntropy = generateRandomEntropy();
+            document.getElementById('suggestedEntropy').textContent = (currentLanguage === 'en' ? 'Suggested: ' : 'Voorgesteld: ') + suggestedEntropy;
+            document.getElementById('entropyPopup').style.display = 'flex';
+            window.acceptSuggestedEntropyCallback = () => {
+                entropyInput.value = suggestedEntropy;
+                entropyInput.classList.remove('flash-red', 'invalid-input');
+                entropyInput.style.border = document.body.className.includes('light') ? '1px solid #999' : '1px solid #666';
+                closeEntropyPopup();
+                callback();
+            };
+        }
+
+        function acceptSuggestedEntropy() {
+            window.acceptSuggestedEntropyCallback();
+        }
+
+        function closeEntropyPopup() {
+            document.getElementById('entropyPopup').style.display = 'none';
+            document.getElementById('entropyInput').classList.remove('flash-red');
+        }
+
+        async function cypherRotator(mode, source, saltOverride = null) {
+            const entropyInput = document.getElementById('entropyInput').value;
+            const saltSlider = document.getElementById('saltSlider');
+            let entropy, summary;
+
+            if (source === 'user' && entropyInput) {
+                entropy = parseFloat(entropyInput);
+                summary = `${currentLanguage === 'en' ? 'User Input' : 'Gebruikersinvoer'}: ${entropyInput}`;
+            } else {
+                const entropyData = await getExternalEntropy(source, mode);
+                entropy = entropyData.value;
+                summary = entropyData.summary;
+            }
+
+            if (isNaN(entropy) || entropy <= 0) {
+                entropy = reduceLargeNumber(performance.now() - lastInteractionTime);
+                summary = `${currentLanguage === 'en' ? 'Fallback' : 'Terugval'}: ${entropy}`;
+            } else if (entropy > 2048) {
+                const originalEntropy = entropy;
+                entropy = adjustEntropy(reduceLargeNumber(entropy), mode);
+                summary += ` (${currentLanguage === 'en' ? 'Reduced to' : 'Verminderd naar'} ${entropy} ${currentLanguage === 'en' ? 'from' : 'van'} ${originalEntropy})`;
+            }
+
+            let startIndex = Math.floor(entropy) - 1;
+            let finalIndex;
+            let jump = 0;
+            let jumpExtra = 0;
+
+            if (mode === 'neutral') {
+                finalIndex = startIndex;
+            } else {
+                jump = getRandomJump();
+                jumpExtra = 0;
+
+                if (mode === 'light') {
+                    jumpExtra = (Math.floor(Math.random() * 512) + 1) * 4;
+                    jump += jumpExtra;
+                    summary += `, ${currentLanguage === 'en' ? 'Light Mode Jump' : 'Lichte Modus Sprong'}: ${jump} (+${jumpExtra})`;
+                } else if (mode === 'dark') {
+                    const primes = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47];
+                    jumpExtra = primes[Math.floor(Math.random() * primes.length)];
+                    jump += jumpExtra;
+                    summary += `, ${currentLanguage === 'en' ? 'Dark Mode Jump' : 'Donkere Modus Sprong'}: ${jump} (+${jumpExtra})`;
+                }
+
+                finalIndex = (startIndex + jump) % 2048;
+                if (finalIndex < 0) finalIndex += 2048;
+            }
+
+            const saltLevel = saltOverride !== null ? saltOverride : parseInt(saltSlider.value);
+            finalIndex = (finalIndex + saltLevel) % 2048;
+            if (finalIndex < 0) finalIndex += 2048;
+            if (saltLevel > 0) {
+                summary += `, ${currentLanguage === 'en' ? 'Salted' : 'Gezouten'}: +${saltLevel} (${saltLevels[saltLevel]})`;
+            }
+
+            const resultNumber = numberArray[finalIndex];
+            const bip39Word = getBip39Word(resultNumber);
+            addWordToList(bip39Word);
+
+            return { 
+                result: resultNumber, 
+                word: bip39Word, 
+                summary, 
+                details: {
+                    mode: mode,
+                    source: source,
+                    initialEntropy: entropy,
+                    jump: jump,
+                    jumpExtra: jumpExtra,
+                    salt: saltLevel,
+                    finalIndex: finalIndex
+                }
+            };
+        }
+
+        async function runRandomizer() {
+            const entropyInput = document.getElementById('entropyInput');
+            const entropyValue = entropyInput.value.trim();
+            const mode = document.getElementById('modeSelect').value;
+            const source = document.getElementById('entropySource').value;
+
+            if (!entropyValue && source === 'user') {
+                showEntropyPopup(runRandomizer);
+                return;
+            }
+
+            if (entropyValue && (!/^\d+$/.test(entropyValue) || parseFloat(entropyValue) <= 0 || entropyValue.length > 21)) {
+                entropyInput.classList.add('invalid-input');
+                document.getElementById('result').textContent = currentLanguage === 'en' ? 'Error: Invalid input.' : 'Fout: Ongeldige invoer.';
+                return;
+            }
+
+            entropyInput.classList.remove('invalid-input');
+            entropyInput.style.border = document.body.className.includes('light') ? '1px solid #999' : '1px solid #666';
+
+            const overlay = document.getElementById('workingOverlay');
+            overlay.style.display = 'flex';
+
+            try {
+                const { result, word, summary } = await cypherRotator(mode, source);
+                document.getElementById('result').textContent = `${currentLanguage === 'en' ? 'Random Number' : 'Willekeurig Nummer'}: ${result} - BIP39 ${currentLanguage === 'en' ? 'Word' : 'Woord'}: ${word}`;
+                document.getElementById('summary').textContent = summary + (!isOnline ? ` (${currentLanguage === 'en' ? 'Offline mode active: Using local entropy only' : 'Offline modus actief: Alleen lokale entropie'})` : '');
+                lastRunLog.push({ timestamp: new Date().toLocaleTimeString(), word: word, number: result });
+                if (isOnline) localStorage.setItem('lastRunLog', JSON.stringify(lastRunLog));
+            } catch (error) {
+                document.getElementById('result').textContent = currentLanguage === 'en' ? 'Error occurred.' : 'Fout opgetreden.';
+                console.error(error);
+            } finally {
+                overlay.style.display = 'none';
+            }
+        }
+
+        async function run23Words() {
+            const entropyInput = document.getElementById('entropyInput');
+            const entropyValue = entropyInput.value.trim();
+
+            if (!entropyValue) {
+                showEntropyPopup(async () => await run23Words());
+                return;
+            }
+
+            if (!/^\d+$/.test(entropyValue) || parseFloat(entropyValue) <= 0 || entropyValue.length > 21) {
+                entropyInput.classList.add('invalid-input');
+                document.getElementById('result').textContent = currentLanguage === 'en' ? 'Error: Invalid input.' : 'Fout: Ongeldige invoer.';
+                return;
+            }
+
+            entropyInput.classList.remove('invalid-input');
+            entropyInput.style.border = document.body.className.includes('light') ? '1px solid #999' : '1px solid #666';
+
+            const overlay = document.getElementById('workingOverlay');
+            overlay.style.display = 'flex';
+
+            generatedWords = [];
+            lastRunLog = [];
+            if (isOnline) {
+                localStorage.setItem('generatedWords', JSON.stringify(generatedWords));
+                localStorage.setItem('lastRunLog', JSON.stringify(lastRunLog));
+            }
+            updateWordListDisplay();
+            updateWordCounter();
+
+            const offlineEntropySources = ['user', 'beats', 'fairMaxEntropy', 'diceRoll'];
+            const activeSources = isOnline ? entropySources : offlineEntropySources;
+
+            let currentMode = Math.random() < 0.5 ? 'light' : 'dark';
+            let lastResultNumber = 0;
+
+            for (let i = 0; i < 23; i++) {
+                if (i % 3 === 0 && i > 0) {
+                    currentMode = Math.random() < 0.5 ? 'light' : 'dark';
+                }
+                let randomSource = activeSources[Math.floor(Math.random() * activeSources.length)];
+                const saltLevel = (i > 0 && i % 3 === 0) ? parseInt(lastResultNumber.toString().slice(-1)) : null;
+
+                try {
+                    const queryWithTimeout = Promise.race([
+                        cypherRotator(currentMode, randomSource, saltLevel),
+                        new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), 5000))
+                    ]);
+
+                    const { result, word, summary, details } = await queryWithTimeout;
+                    lastResultNumber = result;
+                    lastRunLog.push({
+                        timestamp: new Date().toLocaleTimeString(),
+                        word: word,
+                        number: result,
+                        details: details
+                    });
+                    if (isOnline) localStorage.setItem('lastRunLog', JSON.stringify(lastRunLog));
+
+                    document.getElementById('result').textContent = `${currentLanguage === 'en' ? 'Random Number' : 'Willekeurig Nummer'}: ${result} - BIP39 ${currentLanguage === 'en' ? 'Word' : 'Woord'}: ${word} (${i + 1}/23)`;
+                    document.getElementById('summary').textContent = summary + (!isOnline ? ` (${currentLanguage === 'en' ? 'Offline mode active: Using local entropy only' : 'Offline modus actief: Alleen lokale entropie'})` : '');
+                } catch (error) {
+                    console.error(`Error at word ${i + 1}:`, error);
+                    const { result, word, summary, details } = await cypherRotator(currentMode, 'user', saltLevel);
+                    lastResultNumber = result;
+                    lastRunLog.push({
+                        timestamp: new Date().toLocaleTimeString(),
+                        word: word,
+                        number: result,
+                        details: details,
+                        error: `Fallback due to: ${error.message}`
+                    });
+                    if (isOnline) localStorage.setItem('lastRunLog', JSON.stringify(lastRunLog));
+
+                    document.getElementById('result').textContent = `${currentLanguage === 'en' ? 'Random Number' : 'Willekeurig Nummer'}: ${result} - BIP39 ${currentLanguage === 'en' ? 'Word' : 'Woord'}: ${word} (${i + 1}/23) [Fallback]`;
+                    document.getElementById('summary').textContent = `${summary} (Fallback due to ${error.message})` + (!isOnline ? ` (${currentLanguage === 'en' ? 'Offline mode active: Using local entropy only' : 'Offline modus actief: Alleen lokale entropie'})` : '');
+                }
+
+                const delay = Math.floor(Math.random() * (1200 - 200 + 1)) + 200;
+                await new Promise(resolve => setTimeout(resolve, delay));
+            }
+
+            overlay.style.display = 'none';
+        }
+
+        function showInfo() {
+            document.getElementById('infoOverlay').style.display = 'flex';
+        }
+
+        function closeInfo() {
+            document.getElementById('infoOverlay').style.display = 'none';
+        }
+
+        function showLog() {
+            const logList = document.getElementById('logList');
+            logList.innerHTML = '';
+            if (lastRunLog.length === 0) {
+                const li = document.createElement('li');
+                li.textContent = currentLanguage === 'en' ? 'No log available' : 'Geen log beschikbaar';
+                logList.appendChild(li);
+            } else {
+                lastRunLog.forEach(entry => {
+                    const li = document.createElement('li');
+                    if (entry.action) {
+                        li.textContent = `${entry.timestamp}: ${entry.action}${entry.seedPhraseLength ? ` (${entry.seedPhraseLength} words)` : ''}`;
+                    } else {
+                        li.textContent = `${entry.timestamp}: ${entry.word} (${entry.number})${entry.error ? ' [' + entry.error + ']' : ''}`;
+                    }
+                    logList.appendChild(li);
+                });
+            }
+            document.getElementById('logOverlay').style.display = 'flex';
+        }
+
+        function closeLog() {
+            document.getElementById('logOverlay').style.display = 'none';
+        }
+
+        function showSummary() {
+            document.getElementById('summaryOverlay').style.display = 'flex';
+        }
+
+        function closeSummary() {
+            document.getElementById('summaryOverlay').style.display = 'none';
+        }
+
+        function downloadFile() {
+            const htmlContent = document.documentElement.outerHTML;
+            const blob = new Blob([htmlContent], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'Randomizer3000.html';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        function toggleModeSwitch() {
+            isOnline = !isOnline;
+            lever.classList.toggle('online', isOnline);
+            lever.classList.toggle('offline', !isOnline);
+            document.body.classList.toggle('offline-mode', !isOnline);
+
+            const entropyOptions = document.querySelectorAll('#entropySource option');
+            entropyOptions.forEach(option => {
+                if (option.hasAttribute('data-external')) {
+                    option.disabled = !isOnline;
+                }
+            });
+
+            if (isOnline) {
+                loadExternalFonts();
+            } else {
+                removeExternalFonts();
+            }
+
+            const entropySource = document.getElementById('entropySource');
+            if (!isOnline && entropySource.selectedOptions[0].hasAttribute('data-external')) {
+                entropySource.value = 'user';
+            }
+
+            document.getElementById('lever-label').textContent = isOnline ? (currentLanguage === 'en' ? 'Online' : 'Online') : (currentLanguage === 'en' ? 'Offline' : 'Offline');
+            switchLanguage(currentLanguage);
+        }
+
+        function loadExternalFonts() {
+            if (!document.getElementById('google-fonts')) {
+                const googleFonts = document.createElement('link');
+                googleFonts.id = 'google-fonts';
+                googleFonts.href = 'https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap';
+                googleFonts.rel = 'stylesheet';
+                document.head.appendChild(googleFonts);
+            }
+            if (!document.getElementById('font-awesome')) {
+                const fontAwesome = document.createElement('link');
+                fontAwesome.id = 'font-awesome';
+                fontAwesome.rel = 'stylesheet';
+                fontAwesome.href = 'https://use.fontawesome.com/releases/v5.15.4/css/all.css';
+                fontAwesome.integrity = 'sha384-DyZ88mC6Up2uqS4h/KRgHuoeGwBcD4Ng9SiP4dIRy0EXTlnuz47vAwmeGwVChigm';
+                fontAwesome.crossOrigin = 'anonymous';
+                document.head.appendChild(fontAwesome);
+            }
+        }
+
+        function removeExternalFonts() {
+            const googleFonts = document.getElementById('google-fonts');
+            const fontAwesome = document.getElementById('font-awesome');
+            if (googleFonts) googleFonts.remove();
+            if (fontAwesome) fontAwesome.remove();
+            document.body.style.fontFamily = 'Arial, sans-serif';
+        }
+
+        document.getElementById('randomizeInput').addEventListener('click', () => {
+            document.getElementById('entropyInput').value = generateRandomEntropy();
+        });
+        document.getElementById('logIcon').addEventListener('click', showLog);
+        document.getElementById('closeInfo').addEventListener('click', closeInfo);
+        document.getElementById('closeLog').addEventListener('click', closeLog);
+        document.getElementById('entropyPopupClose').addEventListener('click', closeEntropyPopup);
+        document.getElementById('lever-container').addEventListener('click', toggleModeSwitch);
+        document.getElementById('closeSummary').addEventListener('click', closeSummary);
+
+        document.getElementById('saltSlider').addEventListener('input', () => {
+            document.getElementById('saltTooltip').textContent = saltLevels[document.getElementById('saltSlider').value];
+        });
+
+        window.onload = () => {
+            switchLanguage('en');
+            toggleMode();
+            loadExternalFonts();
+            updateWordListDisplay();
+            updateWordCounter();
+            document.getElementById('saltTooltip').textContent = saltLevels[document.getElementById('saltSlider').value];
+            updateTransitTrafficOption();
+        };
+    </script>
+</body>
+</html>
